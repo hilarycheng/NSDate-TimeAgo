@@ -1,5 +1,7 @@
 #import "NSDate+TimeAgo.h"
 
+static NSString *localization = nil;
+
 @interface NSDate()
 -(NSString *)getLocaleFormatUnderscoresWithValue:(double)value;
 @end
@@ -13,10 +15,21 @@
 
 @implementation NSDate (TimeAgo)
 
-#ifndef NSDateTimeAgoLocalizedStrings
-#define NSDateTimeAgoLocalizedStrings(key) \
-NSLocalizedStringFromTableInBundle(key, @"NSDateTimeAgo", [NSBundle bundleWithPath:[[[NSBundle bundleForClass:[DummyClass class]] resourcePath] stringByAppendingPathComponent:@"NSDateTimeAgo.bundle"]], nil)
-#endif
+NSString *NSDateTimeAgoLocalizedStrings(NSString *key) {
+    if (localization == nil)  {
+        return NSLocalizedStringFromTableInBundle(key, @"NSDateTimeAgo", [NSBundle bundleWithPath:[[[NSBundle bundleForClass:[DummyClass class]] resourcePath] stringByAppendingPathComponent:@"NSDateTimeAgo.bundle"]], nil);
+    } else {
+        NSString *local = [NSString stringWithFormat:@"NSDateTimeAgo.bundle/%@.lproj", localization];
+        NSString *path = [[[NSBundle bundleForClass:[DummyClass class]] resourcePath] stringByAppendingPathComponent:local];
+        NSBundle *bundle = [NSBundle bundleWithPath:path];
+        return NSLocalizedStringFromTableInBundle(key, @"NSDateTimeAgo", bundle, nil);
+    }
+}
+
++ (void)setLocalization:(NSString *)l
+{
+    localization = l;
+}
 
 // shows 1 or two letter abbreviation for units.
 // does not include 'ago' text ... just {value}{unit-abbreviation}
